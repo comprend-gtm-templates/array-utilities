@@ -13,8 +13,8 @@
 # limitations under the License.
 
 homepage: "https://www.comprend.com"
-documentation: "https://github.com/comprend-gtm-templates/<REPLACE WITH REPOSITORY NAME>"
+documentation: "https://github.com/comprend-gtm-templates/array-utilities"
 versions:
-  - sha: <REPLACE WITH COMMIT SHA>
+  - sha: c55b9f149485b14ee5bbfbd018ac8a785a721ab0
     changeNotes: |-
       Initial release
