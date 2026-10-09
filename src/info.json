@@ -1,0 +1,18 @@
+{
+  "type": "MACRO",
+  "id": "cvt_temp_public_id",
+  "version": 1,
+  "securityGroups": [],
+  "displayName": "Array Utilities",
+  "categories": [
+    "UTILITY"
+  ],
+  "brand": {
+    "id": "comprend",
+    "displayName": "Comprend"
+  },
+  "description": "Extract, remap and merge arrays:<br>\n<ul>\n<li>Array of Objects → Array of Values</li>\n<li>Array of Objects → Array of Objects</li>\n<li>Multiple Arrays → Array of Objects</li>\n</ul>",
+  "containerContexts": [
+    "WEB"
+  ]
+}

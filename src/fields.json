@@ -1,0 +1,419 @@
+[
+  {
+    "type": "RADIO",
+    "name": "utilityMethod",
+    "displayName": "Utility Method",
+    "simpleValueType": true,
+    "defaultValue": "objectArrayToArray",
+    "alwaysInSummary": true,
+    "radioItems": [
+      {
+        "value": "objectArrayToArray",
+        "displayValue": "Array of Objects → Array of Values",
+        "help": "Extracts one value from every object in the source array and returns the values as a flat array.<br><br>List one or more properties in <b>Source Properties</b>. The rows are read from top to bottom and rows that return undefined are skipped, so a property that is missing from an object falls back to the next row. When more than one row returns a value, <b>Overwrite Existing Values</b> under <b>Additional Options</b> decides which one wins.<br><br><b>Example</b><ul><li><b>Source Array</b><br>[{ prop1: \"value1\" }, { prop2: \"value2\" }]</li><li><b>Source Properties</b><br>prop1<br>prop2</li><li><b>Output</b><br>[ \"value1\", \"value2\" ]</li></ul>"
+      },
+      {
+        "value": "objectArrayToObjectArray",
+        "displayValue": "Array of Objects → Array of Objects",
+        "help": "Picks the properties you choose from every object in the source array and builds a new array of objects.<br><br><b>Example</b><ul><li><b>Source Array</b><br>[{ prop1: \"a\", prop2: \"b\" }, { prop1: \"c\", prop2: \"d\" }]</li><li><b>Property Mapping</b><br>prop2 &rarr; new_prop</li><li><b>Output</b><br>[{ new_prop: \"b\" }, { new_prop: \"d\" }]</li></ul>"
+      },
+      {
+        "value": "multipleArraysToObjectArray",
+        "displayValue": "Multiple Arrays → Array of Objects",
+        "help": "Combines several arrays into one array of objects. The arrays are zipped by position, so index 0 of every array becomes the first output object, index 1 the second, and so on.<br><br><b>Example</b><ul><li><b>Array Mapping</b><br>[ \"a\", \"b\" ] &rarr; row1<br>[ \"c\", \"d\" ] &rarr; row2</li><li><b>Output</b><br>[{ row1: \"a\", row2: \"c\" }, { row1: \"b\", row2: \"d\" }]</li></ul>"
+      }
+    ]
+  },
+  {
+    "type": "TEXT",
+    "name": "sourceArray",
+    "displayName": "Source Array",
+    "simpleValueType": true,
+    "alwaysInSummary": true,
+    "valueHint": "{{DLV - ecommerce.items}}",
+    "help": "The array to read from.<br><br>Reference a variable that returns a real array, for example {{DLV - ecommerce.items}}. Text, including a comma-separated list, is not split into an array.<br><br>If the value is not an array, or the array is empty, the variable returns undefined, or an empty array when <b>Return an Empty Array Instead of Undefined</b> is checked under <b>Additional Options</b>.",
+    "valueValidators": [
+      {
+        "type": "NON_EMPTY"
+      }
+    ],
+    "enablingConditions": [
+      {
+        "paramName": "utilityMethod",
+        "paramValue": "multipleArraysToObjectArray",
+        "type": "NOT_EQUALS"
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
+    "name": "objectArrayToArrayGroup",
+    "displayName": "Values to Extract",
+    "groupStyle": "NO_ZIPPY",
+    "subParams": [
+      {
+        "type": "SIMPLE_TABLE",
+        "name": "fallbackPropMap",
+        "displayName": "Source Properties",
+        "newRowButtonText": "Add Property",
+        "alwaysInSummary": true,
+        "help": "The properties to read from every object in the source array.<br><br><b>How the fallback works</b><br>The rows are read from top to bottom and rows that return undefined are skipped, as are rows that return null or NaN while <b>Discard Undefined, Null and NaN Values</b> is checked. Use a single row to read one property, or add more rows as fallbacks for the objects where the property above is missing. When more than one row returns a value, <b>Overwrite Existing Values</b> under <b>Additional Options</b> decides which row wins: the last one when checked (the default), the first one when unchecked.<br><br>Every object is handled on its own, so one object can be served by the first row while the next one falls back to a later row.<br><br>Use dots to walk into nested objects and numeric indexes to walk into nested arrays.<br><br><b>Example</b><ul><li><b>Source Array</b><br>[{ id_new: \"a1\" }, { legacy: { id: \"b2\" } }, { other: \"x\" }]</li><li><b>Source Properties</b><br>id_new<br>legacy.id</li><li><b>Output</b><br>[ \"a1\", \"b2\" ]</li></ul>The third object has none of the properties, so its value is undefined and is handled by <b>Discard Undefined, Null and NaN Values</b> under <b>Additional Options</b>.",
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "simpleTableColumns": [
+          {
+            "defaultValue": "",
+            "displayName": "Source Property Name/Path",
+            "name": "sourceProp",
+            "type": "TEXT",
+            "isUnique": false,
+            "valueHint": "prop / prop.nested_prop",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SELECT",
+        "name": "convertArrValues",
+        "displayName": "Convert Value",
+        "macrosInSelect": false,
+        "simpleValueType": true,
+        "defaultValue": false,
+        "alwaysInSummary": true,
+        "help": "Optionally converts every value before it is written to the output. Undefined, null and NaN values are never converted.<ul><li><b>To Number</b> / <b>To Integer</b><br>Converts numeric strings. To Integer truncates decimals. If a value cannot be converted the original value is kept.</li><li><b>To String</b><br>Converts any other value to its string representation.</li><li><b>To Boolean</b><br>The strings \"true\" and \"false\" in any casing become true and false, an empty string becomes false, anything else follows normal truthiness.</li></ul>",
+        "selectItems": [
+          {
+            "value": false,
+            "displayValue": "Do Not Convert"
+          },
+          {
+            "value": "number",
+            "displayValue": "To Number"
+          },
+          {
+            "value": "integer",
+            "displayValue": "To Integer"
+          },
+          {
+            "value": "string",
+            "displayValue": "To String"
+          },
+          {
+            "value": "boolean",
+            "displayValue": "To Boolean"
+          }
+        ]
+      }
+    ],
+    "enablingConditions": [
+      {
+        "paramName": "utilityMethod",
+        "paramValue": "objectArrayToArray",
+        "type": "EQUALS"
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
+    "name": "objectArrayToObjectArrayGroup",
+    "displayName": "Output Objects",
+    "groupStyle": "NO_ZIPPY",
+    "subParams": [
+      {
+        "type": "CHECKBOX",
+        "name": "keepAllProps",
+        "checkboxText": "Keep All Source Properties",
+        "simpleValueType": true,
+        "defaultValue": false,
+        "help": "Copies every property of the source object into the output object first, then applies the <b>Property Mapping</b> below.<br><br>Leave unchecked to output only the properties you map.<br><br>A mapped property replaces a copied property with the same <b>Output Property Name</b>, unless <b>Overwrite Existing Values</b> is turned off under <b>Additional Options</b>. The source property itself is not removed, so mapping id_full to id keeps id_full in the output."
+      },
+      {
+        "type": "SIMPLE_TABLE",
+        "name": "propMap",
+        "displayName": "Property Mapping",
+        "newRowButtonText": "Add Property",
+        "alwaysInSummary": true,
+        "help": "Each row reads one property from every source object and writes it to the output object. Use dots to walk into nested objects.<br><br>Rows are applied from top to bottom, so the same <b>Output Property Name</b> can be used in several rows to build a fallback. Which row wins is controlled by <b>Overwrite Existing Values</b> under <b>Additional Options</b>.<br><br><b>Convert Value</b> changes the type of the value: To Number, To Integer (decimals truncated), To String or To Boolean (\"true\" and \"false\" in any casing). A value that cannot be converted to a number is kept as it is, and undefined, null and NaN values are never converted.<br><br>The table can be left empty when <b>Keep All Source Properties</b> or <b>Add Custom Properties</b> is used. Entries in the source array that are not objects are skipped.",
+        "simpleTableColumns": [
+          {
+            "defaultValue": "",
+            "displayName": "Source Property Name/Path",
+            "name": "sourceProp",
+            "type": "TEXT",
+            "valueHint": "prop / prop.nested_prop",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "defaultValue": "",
+            "displayName": "Output Property Name",
+            "name": "outputProp",
+            "type": "TEXT",
+            "isUnique": false,
+            "valueHint": "new_prop_name",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "defaultValue": false,
+            "displayName": "Convert Value",
+            "name": "convertTo",
+            "type": "SELECT",
+            "macrosInSelect": false,
+            "selectItems": [
+              {
+                "value": false,
+                "displayValue": "Do Not Convert"
+              },
+              {
+                "value": "number",
+                "displayValue": "To Number"
+              },
+              {
+                "value": "integer",
+                "displayValue": "To Integer"
+              },
+              {
+                "value": "string",
+                "displayValue": "To String"
+              },
+              {
+                "value": "boolean",
+                "displayValue": "To Boolean"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "enablingConditions": [
+      {
+        "paramName": "utilityMethod",
+        "paramValue": "objectArrayToObjectArray",
+        "type": "EQUALS"
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
+    "name": "multipleArraysToObjectArrayGroup",
+    "displayName": "Arrays to Combine",
+    "groupStyle": "NO_ZIPPY",
+    "subParams": [
+      {
+        "type": "SIMPLE_TABLE",
+        "name": "multiArrayMap",
+        "displayName": "Array Mapping",
+        "newRowButtonText": "Add Array",
+        "alwaysInSummary": true,
+        "help": "Each row takes one array and writes its elements to a property of the output objects. The arrays are zipped by index, so values at the same position end up in the same object.<br><br>Arrays of different lengths are allowed. The output gets as many objects as the longest array, and objects beyond the end of a shorter array simply do not get that property. A row whose <b>Source Array</b> is not an array is skipped.<br><br>The same <b>Output Property Name</b> can be reused in several rows. Rows are applied from top to bottom and which value wins is controlled by <b>Overwrite Existing Values</b> under <b>Additional Options</b>.<br><br><b>Convert Value</b> changes the type of each element: To Number, To Integer (decimals truncated), To String or To Boolean (\"true\" and \"false\" in any casing). A value that cannot be converted to a number is kept as it is, and undefined, null and NaN values are never converted.",
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "simpleTableColumns": [
+          {
+            "defaultValue": "",
+            "displayName": "Source Array",
+            "name": "sourceArray",
+            "type": "TEXT",
+            "valueHint": "{{DLV - item_ids}}",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "defaultValue": "",
+            "displayName": "Output Property Name",
+            "name": "outputProp",
+            "type": "TEXT",
+            "isUnique": false,
+            "valueHint": "new_prop_name",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "defaultValue": false,
+            "displayName": "Convert Value",
+            "name": "convertTo",
+            "type": "SELECT",
+            "macrosInSelect": false,
+            "selectItems": [
+              {
+                "value": false,
+                "displayValue": "Do Not Convert"
+              },
+              {
+                "value": "number",
+                "displayValue": "To Number"
+              },
+              {
+                "value": "integer",
+                "displayValue": "To Integer"
+              },
+              {
+                "value": "string",
+                "displayValue": "To String"
+              },
+              {
+                "value": "boolean",
+                "displayValue": "To Boolean"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "enablingConditions": [
+      {
+        "paramName": "utilityMethod",
+        "paramValue": "multipleArraysToObjectArray",
+        "type": "EQUALS"
+      }
+    ]
+  },
+  {
+    "type": "CHECKBOX",
+    "name": "addCustomProps",
+    "checkboxText": "Add Custom Properties",
+    "simpleValueType": true,
+    "defaultValue": false,
+    "help": "Adds the same extra properties to every object in the output.<br><br>Custom properties are applied after the mapping above. They replace a mapped property with the same name, unless <b>Overwrite Existing Values</b> is turned off under <b>Additional Options</b>.",
+    "subParams": [
+      {
+        "type": "SIMPLE_TABLE",
+        "name": "customPropMap",
+        "displayName": "Custom Properties",
+        "newRowButtonText": "Add Custom Property",
+        "alwaysInSummary": true,
+        "help": "Each row adds one property with the same value to every object in the output.<br><br>Values are evaluated and converted once and then copied into each object, so a referenced variable is resolved a single time. <b>Convert Value</b> works as in the mapping table above.",
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ],
+        "simpleTableColumns": [
+          {
+            "defaultValue": "",
+            "displayName": "Custom Property Name",
+            "name": "propName",
+            "type": "TEXT",
+            "isUnique": false,
+            "valueHint": "custom_prop_name",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "defaultValue": "",
+            "displayName": "Custom Property Value",
+            "name": "propValue",
+            "type": "TEXT",
+            "valueHint": "static value or {{Variable}}",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "defaultValue": false,
+            "displayName": "Convert Value",
+            "name": "convertTo",
+            "type": "SELECT",
+            "macrosInSelect": false,
+            "selectItems": [
+              {
+                "value": false,
+                "displayValue": "Do Not Convert"
+              },
+              {
+                "value": "number",
+                "displayValue": "To Number"
+              },
+              {
+                "value": "integer",
+                "displayValue": "To Integer"
+              },
+              {
+                "value": "string",
+                "displayValue": "To String"
+              },
+              {
+                "value": "boolean",
+                "displayValue": "To Boolean"
+              }
+            ]
+          }
+        ],
+        "enablingConditions": [
+          {
+            "paramName": "addCustomProps",
+            "paramValue": true,
+            "type": "EQUALS"
+          }
+        ]
+      }
+    ],
+    "enablingConditions": [
+      {
+        "paramName": "utilityMethod",
+        "paramValue": "objectArrayToArray",
+        "type": "NOT_EQUALS"
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
+    "name": "additionalOptionsGroup",
+    "displayName": "Additional Options",
+    "groupStyle": "ZIPPY_OPEN",
+    "subParams": [
+      {
+        "type": "CHECKBOX",
+        "name": "discardUndefined",
+        "checkboxText": "Discard Undefined, Null and NaN Values",
+        "simpleValueType": true,
+        "defaultValue": true,
+        "help": "Controls what happens when a value is undefined (for example a property that is missing from an object), null or NaN. Empty strings and zero are real values and are always kept.<ul><li><b>Checked</b><br>The property or array element is left out of the output, including properties copied by <b>Keep All Source Properties</b> and <b>Custom Properties</b>. A discarded value never wins over another row, so a fallback row can still fill the property in.</li><li><b>Unchecked</b><br>The value is written as it is.</li></ul>"
+      },
+      {
+        "type": "CHECKBOX",
+        "name": "overwriteExisting",
+        "checkboxText": "Overwrite Existing Values",
+        "simpleValueType": true,
+        "defaultValue": true,
+        "help": "Controls what happens when a value is written to an output property that already has one, for example when several mapping rows use the same <b>Output Property Name</b>, or when several <b>Source Properties</b> rows return a value for the same source object.<ul><li><b>Checked</b><br>The last value written wins.</li><li><b>Unchecked</b><br>The first value written wins and is not replaced. A property whose value is undefined still counts as empty, so a later row can fill it in.</li></ul>When unchecked, properties copied by <b>Keep All Source Properties</b> are kept as they are, and <b>Custom Properties</b> no longer replace a mapped value."
+      },
+      {
+        "type": "CHECKBOX",
+        "name": "returnEmptyArray",
+        "checkboxText": "Return an Empty Array Instead of Undefined",
+        "simpleValueType": true,
+        "defaultValue": false,
+        "help": "Controls what the variable returns when there is nothing to output: no usable source array, no mapping rows, or every value discarded.<ul><li><b>Checked</b><br>An empty array.</li><li><b>Unchecked</b><br>undefined.</li></ul>"
+      }
+    ]
+  }
+]
