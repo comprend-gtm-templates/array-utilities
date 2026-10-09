@@ -15,13 +15,22 @@
 homepage: "https://www.comprend.com"
 documentation: "https://github.com/comprend-gtm-templates/array-utilities"
 versions:
-  - sha: <REPLACE WITH COMMIT SHA OF template.tpl>
+  - sha: aed37ea6b0334eed6865e49131e0aaaf156af7c7
+    version: 1.1
     changeNotes: |-
-      Discard Undefined Values is now Discard Undefined, Null and NaN Values: undefined, null and NaN are left out in every method, including properties copied by Keep All Source Properties and Custom Properties, and a discarded value no longer blocks a fallback row.
-      Convert Value no longer converts undefined, null or NaN, so a missing value no longer becomes the text "undefined" or "null" (To String) or false (To Boolean).
-      To Boolean ignores spaces around "true" and "false".
-      Spaces around property names in table cells are ignored.
-      Utility Method is shown in the variable summary; section headings and help text clarified.
+      - "Discard Undefined Values" is now "Discard Undefined, Null and NaN Values"
+        - undefined, null and NaN are left out in every method (including properties copied by "Keep All Source Properties" and "Custom Properties")
+        - a discarded value no longer blocks a fallback row.
+      - "Convert Value" no longer converts undefined, null or NaN
+        Missing value no longer becomes the text:
+          - "undefined" (To String)
+          - "null" (To String)
+          - false (To Boolean)
+      - "To Boolean" ignores spaces around "true" and "false".
+      - Spaces around property names in table cells are ignored.
+      - Utility Method is shown in the variable summary
+      - Section headings and help text clarified.
   - sha: c55b9f149485b14ee5bbfbd018ac8a785a721ab0
+    version: 1
     changeNotes: |-
       Initial release
